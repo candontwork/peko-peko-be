@@ -22,7 +22,7 @@ router.get("/all", (req, res) => {
 
 //POST ROUTES
 //create new user & sign in
-router.post("/all", (req, res) => {
+router.post("/signup", (req, res) => {
   const { name, email, password } = req.body;
 
   const newUser = {
@@ -38,7 +38,7 @@ router.post("/all", (req, res) => {
 
 
 //login existing user
-router.post("/all", (req, res) => {
+router.post("/login", (req, res) => {
   const {email, password} = req.body;
 
   const userFound = seed_data.find(u => user.email === email);
