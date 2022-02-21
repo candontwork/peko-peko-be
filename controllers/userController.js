@@ -25,8 +25,14 @@ router.get("/all", (req, res) => {
 router.post("/signup", (req, res) => {
   const { name, email, password } = req.body;
 
+  const userExists = seed_data.find((u) => u.email === email);
+  if (userExists) {
+    console.log('user exists')
+  }
+
+
   const newUser = {
-    id: '12312412',
+    id: "12312412",
     name,
     email,
     password,
@@ -36,17 +42,16 @@ router.post("/signup", (req, res) => {
   res.status(201).json({ user: newUser });
 });
 
-
 //login existing user
 router.post("/login", (req, res) => {
-  const {email, password} = req.body;
+  const { email, password } = req.body;
 
-  const userFound = seed_data.find(u => ugit ad.email === email);
+  const userFound = seed_data.find((u) => u.email === email);
   if (!userFound || userFound.password !== password) {
-    console.log('password and user dont match')
+    console.log("password and user dont match");
   }
 
-  res.json({message: 'Logged In'})
+  res.json({ message: "Logged In" });
 });
 
 module.exports = router;
