@@ -69,32 +69,29 @@ router.post("/", (req, res) => {
 });
 
 //PUT Routes
-
 router.put("/:locationID", (req, res) => {
-  const {
-    name,
-    foodOrdered,
-    comments,
-    revisit,
-    address,
-    gcoordinates,
-  } = req.body;
+  const { name, foodOrdered, comments, revisit, address, gcoordinates } =
+    req.body;
   const locationID = req.params.locationID;
 
-  const updateLocation = {...seed_data.find((loc) => loc.id === locationID)};
-  const locationIndex = seed_data.find(loc => loc.id === locationID);
-  updateLocation.name = name; 
+  const updateLocation = { ...seed_data.find((loc) => loc.id === locationID) };
+  const locationIndex = seed_data.find((loc) => loc.id === locationID);
+  updateLocation.name = name;
   updateLocation.foodOrdered = foodOrdered;
-  updateLocation.comments = comments; 
-  updateLocation.revisit = revisit; 
-  updateLocation.address = address; 
-  updateLocation.gcoordinates = gcoordinates; 
+  updateLocation.comments = comments;
+  updateLocation.revisit = revisit;
+  updateLocation.address = address;
+  updateLocation.gcoordinates = gcoordinates;
 
   seed_data[locationIndex] = updateLocation;
 
-  res.status(200).json({location: updateLocation})
+  res.status(200).json({ location: updateLocation });
 });
 
-router.delete("/:locationID", (req, res) => {});
+//DELETE
+router.delete("/:locationID", (req, res) => {
+  const locationID = req.params.locationID;
+  seed_data = seed_data.filter((loc) => loc.id !== locationID);Í
+});
 
 module.exports = router;
