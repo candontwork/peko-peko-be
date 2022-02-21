@@ -14,7 +14,6 @@ const userController = require('./controllers/userController')
 app.use('/api/locations', locationController);
 
 
-
 //mango
 app.listen(PORT, () => {
   console.log("listening on", PORT);

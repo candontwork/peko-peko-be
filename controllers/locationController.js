@@ -32,7 +32,6 @@ router.get("/:locationID", (req, res) => {
 });
 
 //location for each user
-
 router.get("/user/:userID", (req, res) => {
   const userID = req.params.userID;
   const location = seed_data.find((loc) => {
@@ -43,6 +42,7 @@ router.get("/user/:userID", (req, res) => {
 
 //POST ROUTES
 
+//new location entry
 router.post("/", (req, res) => {
   const {
     name,
@@ -57,15 +57,44 @@ router.post("/", (req, res) => {
     name,
     foodOrdered,
     comments,
-    revisit, 
-    address, 
-    creatorID, 
-    location: gcoordinates
+    revisit,
+    address,
+    creatorID,
+    location: gcoordinates,
   };
 
   seed_data.push(createdLocation);
 
-  res.status(201).json({location: createdLocation})
+  res.status(201).json({ location: createdLocation });
 });
+
+//PUT Routes
+
+router.put("/:locationID", (req, res) => {
+  const {
+    name,
+    foodOrdered,
+    comments,
+    revisit,
+    address,
+    gcoordinates,
+  } = req.body;
+  const locationID = req.params.locationID;
+
+  const updateLocation = {...seed_data.find((loc) => loc.id === locationID)};
+  const locationIndex = seed_data.find(loc => loc.id === locationID);
+  updateLocation.name = name; 
+  updateLocation.foodOrdered = foodOrdered;
+  updateLocation.comments = comments; 
+  updateLocation.revisit = revisit; 
+  updateLocation.address = address; 
+  updateLocation.gcoordinates = gcoordinates; 
+
+  seed_data[locationIndex] = updateLocation;
+
+  res.status(200).json({location: updateLocation})
+});
+
+router.delete("/:locationID", (req, res) => {});
 
 module.exports = router;
