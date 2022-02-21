@@ -10,14 +10,14 @@ const seed_data = [
     name: "pizza pizza",
     foodOrdered: "Egg-Ham-Cheese",
     comments: "taste like socks",
-    revist: "no",
+    revisit: "no",
     address: "road road Avenue 3",
     creatorID: "u1",
     gcoordinates: {
       lat: 1.2907,
       lng: 103.852,
     },
-  }
+  },
 ];
 
 //GET ROUTES
@@ -25,20 +25,47 @@ const seed_data = [
 //route to get location
 router.get("/:locationID", (req, res) => {
   const locationID = req.params.locationID;
-  const location = seed_data.find(loc => {
+  const location = seed_data.find((loc) => {
     return loc.id === locationID;
   });
   res.json({ location: location });
 });
 
 //location for each user
+
 router.get("/user/:userID", (req, res) => {
-    const userID = req.params.userID; 
-    const location = seed_data.find(loc => {
-        return loc.creatorID === userID
-    })
-    res.json({location: location})
+  const userID = req.params.userID;
+  const location = seed_data.find((loc) => {
+    return loc.creatorID === userID;
+  });
+  res.json({ location: location });
 });
 
+//POST ROUTES
+
+router.post("/", (req, res) => {
+  const {
+    name,
+    foodOrdered,
+    comments,
+    revisit,
+    address,
+    creatorID,
+    gcoordinates,
+  } = req.body;
+  const createdLocation = {
+    name,
+    foodOrdered,
+    comments,
+    revisit, 
+    address, 
+    creatorID, 
+    location: gcoordinates
+  };
+
+  seed_data.push(createdLocation);
+
+  res.status(201).json({location: createdLocation})
+});
 
 module.exports = router;

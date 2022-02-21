@@ -7,7 +7,6 @@ const PORT = process.env.PORT || 8800;
 //middleware
 app.use(express.json());
 
-
 //Controllers
 const locationController = require('./controllers/locationController');
 const userController = require('./controllers/userController')
