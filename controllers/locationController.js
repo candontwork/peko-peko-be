@@ -31,13 +31,13 @@ router.get("/:locationID", (req, res) => {
   res.json({ location: location });
 });
 
-//location for each user
+//all location for each userID
 router.get("/user/:userID", (req, res) => {
   const userID = req.params.userID;
-  const location = seed_data.find((loc) => {
+  const locations = seed_data.filter((loc) => {
     return loc.creatorID === userID;
   });
-  res.json({ location: location });
+  res.json({ locations: locations });
 });
 
 //POST ROUTES
