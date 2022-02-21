@@ -22,7 +22,7 @@ router.get("/all", (req, res) => {
 
 //POST ROUTES
 //create new user & sign in
-router.get("/all", (req, res) => {
+router.post("/all", (req, res) => {
   const { name, email, password } = req.body;
 
   const newUser = {
@@ -36,7 +36,16 @@ router.get("/all", (req, res) => {
   res.status(201).json({ user: newUser });
 });
 
+
 //login existing user
-router.get("/all", (req, res) => {});
+router.post("/all", (req, res) => {
+  const {email, password} = req.body;
+
+  const userFound = seed_data.find(u => user.email === email);
+  // add error handling 
+  // if (userFound) {
+    
+  // }
+});
 
 module.exports = router;
