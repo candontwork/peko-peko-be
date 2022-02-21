@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const seed_data = [
+let seed_data = [
   {
     id: "place2",
     imgUrl:
@@ -91,7 +91,8 @@ router.put("/:locationID", (req, res) => {
 //DELETE
 router.delete("/:locationID", (req, res) => {
   const locationID = req.params.locationID;
-  seed_data = seed_data.filter((loc) => loc.id !== locationID);Í
+  seed_data = seed_data.filter((loc) => loc.id !== locationID);
+  res.status(200).json({ message: "location deleted!" });
 });
 
 module.exports = router;
