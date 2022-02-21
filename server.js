@@ -12,6 +12,7 @@ const locationController = require('./controllers/locationController');
 const userController = require('./controllers/userController')
 
 app.use('/api/locations', locationController);
+app.use('/api/user', userController)
 
 
 //mango
