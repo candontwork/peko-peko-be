@@ -2,6 +2,7 @@ const express = require("express");
 const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/error-handler");
+const User = require("../models/user");
 
 const router = express.Router();
 
@@ -27,34 +28,47 @@ router.get("/all", (req, res) => {
 //create new user & sign in
 router.post(
   "/signup",
-  [check("name").not().isEmpty()],
+  [check("username").not().isEmpty()],
   [check("email").not().isEmpty()],
   [check("email").normalizeEmail().isEmail()],
   [check("password").not().isEmpty()],
-  [check("password").isLength({ min: 8 })],
-  (req, res) => {
+  async (req, res, next) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-      console.log(validationErr, "error: invalid input");
-      res.status(422);
+      return next(new HttpError('Invalid inputs passed, please check'))
     }
 
-    const { name, email, password } = req.body;
+    const { email, username, password, locations } = req.body;
 
-    const userExists = seed_data.find((u) => u.email === email);
+    let userExists
+    try {
+      userExists = await User.findOne({ email: email });
+    } catch (err) {
+      const error = new HttpError('Failed to sign up, please try again', 500)
+      return next(error)
+    }
+
     if (userExists) {
-      throw new HttpError('Email already exists.', 422);
-    }
-
-    const newUser = {
-      id: "12312412",
-      name,
-      email,
-      password,
+      const error = new HttpError('User already exists. Please login.', 422)
+      return next(error)
     };
 
-    seed_data.push(newUser);
-    res.status(201).json({ user: newUser });
+    const newUser = new User({
+      email: email, 
+      password: password, 
+      username: username,
+      img: 'https://avataaars.io/?avatarStyle=Transparent&topType=WinterHat4&accessoriesType=Blank&hatColor=Red&facialHairType=MoustacheMagnum&facialHairColor=Platinum&clotheType=ShirtVNeck&clotheColor=Blue01&eyeType=Side&eyebrowType=UpDownNatural&mouthType=Concerned&skinColor=Brown', 
+      locations: locations
+    });
+
+    try {
+      await newUser.save(); 
+    } catch(err) {
+      const error = new HttpError(
+        'Failed to create user, please try again', 500);
+      return next(error)
+    }
+    res.status(201).json({ user: newUser.toObject({getters:true}) });
   }
 );
 
@@ -64,7 +78,7 @@ router.post("/login", (req, res) => {
 
   const userFound = seed_data.find((u) => u.email === email);
   if (!userFound || userFound.password !== password) {
-    throw new HttpError('Username or Password is wrong', 401);
+    throw new HttpError("Username or Password is wrong", 401);
   }
 
   res.json({ message: "Logged In" });

@@ -94,7 +94,7 @@ router.put(
   async (req, res, next) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-      throw new HttpError("Error in data entered, please check", 422);
+      return next(new HttpError("Error in data entered, please check", 422));
     }
 
     const { name, foodOrdered, comments, revisit, address } = req.body;
