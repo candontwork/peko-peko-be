@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const app = express();
+const cors = require('cors');
 
 const PORT = process.env.PORT || 8080;
 const db = mongoose.connection
@@ -13,6 +14,7 @@ const MONGO_URL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_BASE_UR
 
 //middleware
 app.use(express.json());
+app.use(cors()); 
 
 //Controllers
 const locationController = require("./controllers/locationController");
