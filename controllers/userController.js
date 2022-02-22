@@ -90,7 +90,7 @@ router.post("/login", async (req, res, next) => {
   }
 
   if (userFound.password !== password) {
-    const error = new HttpError("Email and password do't match", 401);
+    const error = new HttpError("Email and password don't match", 401);
     return next(error);
   }
 
