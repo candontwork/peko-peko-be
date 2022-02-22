@@ -6,22 +6,20 @@ const User = require("../models/user");
 
 const router = express.Router();
 
-const seed_data = [
-  {
-    id: "u1",
-    name: "john smith",
-    userName: "jellyboi",
-    img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-    email: "user@user.com",
-    password: "password",
-    locations: 4,
-  },
-];
-
 //GET ROUTES
 //get all user
-router.get("/all", (req, res) => {
-  res.json({ users: seed_data });
+router.get("/all", async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find({}, "-password");
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to find users, please try again later",
+      500
+    );
+    return next(error);
+  }
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 });
 
 //POST ROUTES
@@ -35,40 +33,42 @@ router.post(
   async (req, res, next) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-      return next(new HttpError('Invalid inputs passed, please check'))
+      return next(new HttpError("Invalid inputs passed, please check"), 500);
     }
 
     const { email, username, password, locations } = req.body;
 
-    let userExists
+    let userExists;
     try {
       userExists = await User.findOne({ email: email });
     } catch (err) {
-      const error = new HttpError('Failed to sign up, please try again', 500)
-      return next(error)
+      const error = new HttpError("Failed to sign up, please try again", 500);
+      return next(error);
     }
 
     if (userExists) {
-      const error = new HttpError('User already exists. Please login.', 422)
-      return next(error)
-    };
+      const error = new HttpError("User already exists. Please login.", 422);
+      return next(error);
+    }
 
     const newUser = new User({
-      email: email, 
-      password: password, 
+      email: email,
+      password: password,
       username: username,
-      img: 'https://avataaars.io/?avatarStyle=Transparent&topType=WinterHat4&accessoriesType=Blank&hatColor=Red&facialHairType=MoustacheMagnum&facialHairColor=Platinum&clotheType=ShirtVNeck&clotheColor=Blue01&eyeType=Side&eyebrowType=UpDownNatural&mouthType=Concerned&skinColor=Brown', 
-      locations: locations
+      img: "https://avataaars.io/?avatarStyle=Transparent&topType=WinterHat4&accessoriesType=Blank&hatColor=Red&facialHairType=MoustacheMagnum&facialHairColor=Platinum&clotheType=ShirtVNeck&clotheColor=Blue01&eyeType=Side&eyebrowType=UpDownNatural&mouthType=Concerned&skinColor=Brown",
+      locations: locations,
     });
 
     try {
-      await newUser.save(); 
-    } catch(err) {
+      await newUser.save();
+    } catch (err) {
       const error = new HttpError(
-        'Failed to create user, please try again', 500);
-      return next(error)
+        "Failed to create user, please try again",
+        500
+      );
+      return next(error);
     }
-    res.status(201).json({ user: newUser.toObject({getters:true}) });
+    res.status(201).json({ user: newUser.toObject({ getters: true }) });
   }
 );
 
@@ -76,22 +76,22 @@ router.post(
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
 
-  let userFound 
+  let userFound;
   try {
-    userFound = await User.findOne({email:email})
+    userFound = await User.findOne({ email: email });
   } catch (err) {
-    const error = new HttpError('Failed to login, please try again.', 500)
-    return next(error)
+    const error = new HttpError("Failed to login, please try again.", 500);
+    return next(error);
   }
 
-  if (!userFound ) {
-    const error = new HttpError('Email not found, please sign up', 401)
-    return next (error)
-  } 
-  
+  if (!userFound) {
+    const error = new HttpError("Email not found, please sign up", 401);
+    return next(error);
+  }
+
   if (userFound.password !== password) {
-    const error = new HttpError('Email and password do\'t match', 401)
-    return next(error)
+    const error = new HttpError("Email and password do't match", 401);
+    return next(error);
   }
 
   res.json({ message: "Logged In" });
