@@ -3,6 +3,7 @@ const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
 
 const router = express.Router();
+const addressToCoord = require('../location')
 
 let seed_data = [
   {
@@ -51,7 +52,7 @@ router.post(
   [check("foodOrdered").not().isEmpty()],
   [check("revisit").not().isEmpty()],
   [check("address").not().isEmpty()],
-  (req, res) => {
+  async (req, res) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
       console.log(validationErr, "error: invalid input");
@@ -64,8 +65,17 @@ router.post(
       revisit,
       address,
       creatorID,
-      gcoordinates,
     } = req.body;
+
+    let gcoordinates;
+
+    try {
+      gcoordinates = await addressToCoord(address)
+    } catch (err) {
+      console.error(err)
+      res.status(500).send('location not found')
+    }
+
     const createdLocation = {
       name,
       foodOrdered,
