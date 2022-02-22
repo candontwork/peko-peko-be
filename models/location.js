@@ -12,7 +12,7 @@ const locationSchema = new Schema({
     lat: { type:Number, required: true },
     lng: { type:Number, required: true },
   },
-  creatorID: { type: String, required: true },
+  creatorID: { type: mongoose.Types.ObjectId, required: true, ref:'User'},
   img: { type: String },
 });
 
