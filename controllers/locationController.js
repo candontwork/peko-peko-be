@@ -28,29 +28,43 @@ let seed_data = [
 //GET ROUTES
 
 //route to get location
-router.get("/:locationID", (req, res) => {
+router.get("/:locationID", async (req, res, next) => {
   const locationID = req.params.locationID;
-  const location = seed_data.find((loc) => {
-    return loc.id === locationID;
-  });
 
-  if (!location) {
-    throw new HttpError("No locations found", 404);
+  let location;
+  try {
+    location = await Location.findById(locationID);
+  } catch (err) {
+    const error = new HttpError("Error occured, location not found.", 500);
+    return next(error);
   }
-  res.json({ location: location });
+  if (!location) {
+    const error = new HttpError("No location exists", 404);
+    return next(error);
+  }
+  res.json({ location: location.toObject({ getters: true }) });
 });
 
 //all location for each userID
-router.get("/user/:userID", (req, res) => {
+router.get("/user/:userID", async (req, res, next) => {
   const userID = req.params.userID;
-  const locations = seed_data.filter((loc) => {
-    return loc.creatorID === userID;
-  });
 
-  if (!location) {
-    return next(new HttpError("Location does not exist from this user.", 404));
+  let locations;
+  try {
+    locations = await Location.find({ creator: userID });
+  } catch (err) {
+    const error = new HttpError(
+      "An error occurred, please try again later.",
+      500
+    );
+    return next(error);
   }
-  res.json({ locations: locations });
+  if (!locations || locations.legnth === 0) {
+    return next(new HttpError("No locations exist for this user.", 404));
+  }
+  res.json({
+    locations: locations.map((loc) => loc.toObject({ getters: true })),
+  });
 });
 
 //POST ROUTES
@@ -60,7 +74,6 @@ router.post("/", async (req, res, next) => {
   const { name, foodOrdered, comments, revisit, address, creatorID } = req.body;
 
   let gcoordinates;
-
   try {
     gcoordinates = await addressToCoord(address);
   } catch (err) {
@@ -97,30 +110,43 @@ router.put(
   [check("foodOrdered").not().isEmpty()],
   [check("revisit").not().isEmpty()],
   [check("address").not().isEmpty()],
-  (req, res) => {
+  async (req, res, next) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
       throw new HttpError("Error in data entered, please check", 422);
     }
 
-    const { name, foodOrdered, comments, revisit, address, gcoordinates } =
-      req.body;
+    const { name, foodOrdered, comments, revisit, address } = req.body;
     const locationID = req.params.locationID;
 
-    const updateLocation = {
-      ...seed_data.find((loc) => loc.id === locationID),
-    };
-    const locationIndex = seed_data.find((loc) => loc.id === locationID);
-    updateLocation.name = name;
-    updateLocation.foodOrdered = foodOrdered;
-    updateLocation.comments = comments;
-    updateLocation.revisit = revisit;
-    updateLocation.address = address;
-    updateLocation.gcoordinates = gcoordinates;
+    let location;
+    try {
+      location = await Location.findById(locationID);
+    } catch (err) {
+      const error = new HttpError(
+        "An error occured, unable to update location",
+        500
+      );
+      return next(error);
+    }
 
-    seed_data[locationIndex] = updateLocation;
+    location.name = name;
+    location.foodOrdered = foodOrdered;
+    location.comments = comments;
+    location.revisit = revisit;
+    location.address = address;
 
-    res.status(200).json({ location: updateLocation });
+    try {
+      await location.save();
+    } catch (err) {
+      const error = new HttpError(
+        "An error occured, unable to update location",
+        500
+      );
+      return next(error);
+    }
+
+    res.status(200).json({ location: location.toObject({ getters: true }) });
   }
 );
 
