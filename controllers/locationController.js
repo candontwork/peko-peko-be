@@ -1,4 +1,6 @@
 const express = require("express");
+const { check } = require("express-validator");
+const { validationResult } = require("express-validator");
 
 const router = express.Router();
 
@@ -43,50 +45,77 @@ router.get("/user/:userID", (req, res) => {
 //POST ROUTES
 
 //new location entry
-router.post("/", (req, res) => {
-  const {
-    name,
-    foodOrdered,
-    comments,
-    revisit,
-    address,
-    creatorID,
-    gcoordinates,
-  } = req.body;
-  const createdLocation = {
-    name,
-    foodOrdered,
-    comments,
-    revisit,
-    address,
-    creatorID,
-    location: gcoordinates,
-  };
+router.post(
+  "/",
+  [check("name").not().isEmpty()],
+  [check("foodOrdered").not().isEmpty()],
+  [check("revisit").not().isEmpty()],
+  [check("address").not().isEmpty()],
+  (req, res) => {
+    const validationErr = validationResult(req);
+    if (!validationErr.isEmpty()) {
+      console.log(validationErr, "error: invalid input");
+      res.status(422);
+    }
+    const {
+      name,
+      foodOrdered,
+      comments,
+      revisit,
+      address,
+      creatorID,
+      gcoordinates,
+    } = req.body;
+    const createdLocation = {
+      name,
+      foodOrdered,
+      comments,
+      revisit,
+      address,
+      creatorID,
+      location: gcoordinates,
+    };
 
-  seed_data.push(createdLocation);
+    seed_data.push(createdLocation);
 
-  res.status(201).json({ location: createdLocation });
-});
+    res.status(201).json({ location: createdLocation });
+  }
+);
 
 //PUT Routes
-router.put("/:locationID", (req, res) => {
-  const { name, foodOrdered, comments, revisit, address, gcoordinates } =
-    req.body;
-  const locationID = req.params.locationID;
+//update past locations
+router.put(
+  "/:locationID",
+  [check("name").not().isEmpty()],
+  [check("foodOrdered").not().isEmpty()],
+  [check("revisit").not().isEmpty()],
+  [check("address").not().isEmpty()],
+  (req, res) => {
+    const validationErr = validationResult(req);
+    if (!validationErr.isEmpty()) {
+      console.log(validationErr, "error: invalid input");
+      res.status(422);
+    }
+    const { name, foodOrdered, comments, revisit, address, gcoordinates } =
+      req.body;
+    const locationID = req.params.locationID;
 
-  const updateLocation = { ...seed_data.find((loc) => loc.id === locationID) };
-  const locationIndex = seed_data.find((loc) => loc.id === locationID);
-  updateLocation.name = name;
-  updateLocation.foodOrdered = foodOrdered;
-  updateLocation.comments = comments;
-  updateLocation.revisit = revisit;
-  updateLocation.address = address;
-  updateLocation.gcoordinates = gcoordinates;
+    const updateLocation = {
+      ...seed_data.find((loc) => loc.id === locationID),
+    };
+    const locationIndex = seed_data.find((loc) => loc.id === locationID);
+    updateLocation.name = name;
+    updateLocation.foodOrdered = foodOrdered;
+    updateLocation.comments = comments;
+    updateLocation.revisit = revisit;
+    updateLocation.address = address;
+    updateLocation.gcoordinates = gcoordinates;
 
-  seed_data[locationIndex] = updateLocation;
+    seed_data[locationIndex] = updateLocation;
 
-  res.status(200).json({ location: updateLocation });
-});
+    res.status(200).json({ location: updateLocation });
+  }
+);
 
 //DELETE
 router.delete("/:locationID", (req, res) => {
