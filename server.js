@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const app = express();
 
-const PORT = process.env.PORT || 8800;
+const PORT = process.env.PORT || 8080;
 const db = mongoose.connection
 const DATABASE = process.env.DATABASE;
 const MONGO_USER = process.env.MONGO_USER;
