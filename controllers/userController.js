@@ -6,7 +6,7 @@ const User = require("../models/user");
 
 const router = express.Router();
 
-//GET ROUTES
+//GET ROUTES   -----------------------------------------------------------
 //get all user
 router.get("/all", async (req, res, next) => {
   let users;
@@ -22,7 +22,7 @@ router.get("/all", async (req, res, next) => {
   res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 });
 
-//POST ROUTES
+//POST ROUTES   -----------------------------------------------------------
 //create new user & sign in
 router.post(
   "/signup",
