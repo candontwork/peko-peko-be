@@ -73,12 +73,25 @@ router.post(
 );
 
 //login existing user
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
 
-  const userFound = seed_data.find((u) => u.email === email);
-  if (!userFound || userFound.password !== password) {
-    throw new HttpError("Username or Password is wrong", 401);
+  let userFound 
+  try {
+    userFound = await User.findOne({email:email})
+  } catch (err) {
+    const error = new HttpError('Failed to login, please try again.', 500)
+    return next(error)
+  }
+
+  if (!userFound ) {
+    const error = new HttpError('Email not found, please sign up', 401)
+    return next (error)
+  } 
+  
+  if (userFound.password !== password) {
+    const error = new HttpError('Email and password do\'t match', 401)
+    return next(error)
   }
 
   res.json({ message: "Logged In" });
