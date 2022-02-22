@@ -26,15 +26,15 @@ router.get("/all", async (req, res, next) => {
 //create new user & sign in
 router.post(
   "/signup",
-  [check("username").not().isEmpty()],
-  [check("email").not().isEmpty()],
-  [check("email").normalizeEmail().isEmail()],
-  [check("password").not().isEmpty()],
+  // [check("username").not().isEmpty()],
+  // [check("email").not().isEmpty()],
+  // [check("email").normalizeEmail().isEmail()],
+  // [check("password").not().isEmpty()],
   async (req, res, next) => {
-    const validationErr = validationResult(req);
-    if (!validationErr.isEmpty()) {
-      return next(new HttpError("Invalid inputs passed, please check"), 500);
-    }
+    // const validationErr = validationResult(req);
+    // if (!validationErr.isEmpty()) {
+    //   return next(new HttpError("Invalid inputs passed, please check"), 500);
+    // }
 
     const { email, username, password } = req.body;
 
