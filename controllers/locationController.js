@@ -5,7 +5,7 @@ const HttpError = require("../models/error-handler");
 
 const router = express.Router();
 const addressToCoord = require("../location");
-const Location = require('../models/location');
+const Location = require("../models/location");
 
 let seed_data = [
   {
@@ -56,71 +56,38 @@ router.get("/user/:userID", (req, res) => {
 //POST ROUTES
 
 //new location entry
-router.post(
-  "/",
-  // [check("name").not().isEmpty()],
-  // [check("foodOrdered").not().isEmpty()],
-  // [check("revisit").not().isEmpty()],
-  // [check("address").not().isEmpty()],
-  async (req, res, next) => {
-    // const validationErr = validationResult(req);
-    // if (!validationErr.isEmpty()) {
-    //   return next(
-    //     new HttpError("Error in data entered, please check", 422)
-    //   );
-    // }
+router.post("/", async (req, res, next) => {
+  const { name, foodOrdered, comments, revisit, address, creatorID } = req.body;
 
-    const { name, foodOrdered, comments, revisit, address, creatorID } =
-      req.body;
+  let gcoordinates;
 
-    let gcoordinates;
+  try {
+    gcoordinates = await addressToCoord(address);
+  } catch (err) {
+    return next(err);
+  }
 
-    try {
-      gcoordinates = await addressToCoord(address);
-    } catch (err) {
-      return next(err);
-    }
+  const createdLocation = new Location({
+    name: name,
+    foodOrdered: foodOrdered,
+    address: address,
+    revisit: revisit,
+    coordinates: gcoordinates,
+    img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
+    creatorID,
+  });
 
-    const createdLocation = new Location({
-      name: name, 
-      foodOrdered: foodOrdered, 
-      address: address, 
-      revisit: revisit,
-      coordinates: gcoordinates, //could be this location label?
-      img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-      creatorID,      
-    });
-
-    try {
-      await createdLocation.save();
-    } catch (err) {
-      const error = new HttpError(
-        'Error occured when creating location, please try again', 500
-      );
-      return next(error); 
-    }
-    res.status(201).json({location:createdLocation});
-  })
-
-    // const createdLocation = new Location({
-    //   name,
-    //   foodOrdered,
-    //   address,
-    //   coordinates: gcoordinates,
-    //   img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-    //   creatorID,
-    // });
-
-  //   try {
-  //     await createdLocation.save();
-  //   } catch (err) {
-  //     const error = new HttpError(
-  //       'error occured when creating location', 500
-  //     );
-  //   return next(error);
-  //     }
-  //     res.status(201).json({ location: createdLocation });
-  // })
+  try {
+    await createdLocation.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Error occured when creating location, please try again",
+      500
+    );
+    return next(error);
+  }
+  res.status(201).json({ location: createdLocation });
+});
 
 //PUT Routes
 //update past locations
