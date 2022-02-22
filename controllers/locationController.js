@@ -120,6 +120,9 @@ router.put(
 //DELETE
 router.delete("/:locationID", (req, res) => {
   const locationID = req.params.locationID;
+  if (seed_data.find(loc => loc.id=== locationID)) {
+    console.log('error msg')
+  }
   seed_data = seed_data.filter((loc) => loc.id !== locationID);
   res.status(200).json({ message: "location deleted!" });
 });
