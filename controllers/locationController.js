@@ -34,7 +34,8 @@ router.get("/user/:userID", async (req, res, next) => {
 
   let locations;
   try {
-    locations = await Location.find({ creator: userID });
+    // locations = await Location.find({ creator: userID });
+    locations = await User.findById(userID).populate('locations')
   } catch (err) {
     const error = new HttpError(
       "An error occurred, please try again later.",
@@ -42,11 +43,11 @@ router.get("/user/:userID", async (req, res, next) => {
     );
     return next(error);
   }
-  if (!locations || locations.legnth === 0) {
+  if (!locations || locations.locationslength === 0) {
     return next(new HttpError("No locations exist for this user.", 404));
   }
   res.json({
-    locations: locations.map((loc) => loc.toObject({ getters: true })),
+    locations: locations.locations.map((loc) => loc.toObject({ getters: true })),
   });
 });
 
