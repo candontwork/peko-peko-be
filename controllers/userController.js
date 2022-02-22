@@ -1,4 +1,6 @@
 const express = require("express");
+const { check } = require("express-validator");
+const { validationResult } = require("express-validator");
 
 const router = express.Router();
 
@@ -22,25 +24,38 @@ router.get("/all", (req, res) => {
 
 //POST ROUTES
 //create new user & sign in
-router.post("/signup", (req, res) => {
-  const { name, email, password } = req.body;
+router.post(
+  "/signup",
+  [check("name").not().isEmpty()],
+  [check("email").not().isEmpty()],
+  [check("email").normalizeEmail().isEmail()],
+  [check("password").not().isEmpty()],
+  [check("password").isLength({ min: 8 })],
+  (req, res) => {
+    const validationErr = validationResult(req);
+    if (!validationErr.isEmpty()) {
+      console.log(validationErr, "error: invalid input");
+      res.status(422);
+    }
 
-  const userExists = seed_data.find((u) => u.email === email);
-  if (userExists) {
-    console.log('user exists')
+    const { name, email, password } = req.body;
+
+    const userExists = seed_data.find((u) => u.email === email);
+    if (userExists) {
+      console.log("user exists");
+    }
+
+    const newUser = {
+      id: "12312412",
+      name,
+      email,
+      password,
+    };
+
+    seed_data.push(newUser);
+    res.status(201).json({ user: newUser });
   }
-
-
-  const newUser = {
-    id: "12312412",
-    name,
-    email,
-    password,
-  };
-
-  seed_data.push(newUser);
-  res.status(201).json({ user: newUser });
-});
+);
 
 //login existing user
 router.post("/login", (req, res) => {
