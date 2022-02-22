@@ -5,10 +5,11 @@ const app = express();
 
 const PORT = process.env.PORT || 8800;
 const db = mongoose.connection
-const DATABASE = process.env.DATABSE;
+const DATABASE = process.env.DATABASE;
 const MONGO_USER = process.env.MONGO_USER;
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
-const MONGO_URL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@ga-dev-cluster-rosh.pakav.mongodb.net/${DATABASE}?retryWrites=true&w=majority`
+const MONGO_BASE_URL = process.env.MONGO_BASE_URL
+const MONGO_URL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_BASE_URL}/${DATABASE}?retryWrites=true&w=majority`
 
 //middleware
 app.use(express.json());
