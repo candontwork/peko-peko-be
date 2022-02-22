@@ -16,9 +16,15 @@ app.use(express.json());
 //Controllers
 const locationController = require("./controllers/locationController");
 const userController = require("./controllers/userController");
+const HttpError = require("./models/error-handler");
 
 app.use("/api/locations", locationController);
 app.use("/api/user", userController);
+
+app.use((req, res) => {
+  const err = new HttpError('Page does not exist', 404);
+  throw error; 
+})
 
 //mango
 mongoose.connect(MONGO_URL).then(async () => {

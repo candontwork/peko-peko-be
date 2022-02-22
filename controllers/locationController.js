@@ -1,26 +1,28 @@
 const express = require("express");
 const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
+const HttpError = require('../models/error-handler')
 
 const router = express.Router();
 const addressToCoord = require('../location')
+const Location = require('../models/location')
 
 let seed_data = [
-  {
-    id: "place2",
-    imgUrl:
-      "https://qul.imgix.net/4d8a0964-da2a-4ec9-b0a0-95a577d2a1d6/552197_sld.jpg?auto=format&w=1800",
-    name: "pizza pizza",
-    foodOrdered: "Egg-Ham-Cheese",
-    comments: "taste like socks",
-    revisit: "no",
-    address: "road road Avenue 3",
-    creatorID: "u1",
-    gcoordinates: {
-      lat: 1.2907,
-      lng: 103.852,
-    },
-  },
+  // {
+  //   id: "place2",
+  //   imgUrl:
+  //     "https://qul.imgix.net/4d8a0964-da2a-4ec9-b0a0-95a577d2a1d6/552197_sld.jpg?auto=format&w=1800",
+  //   name: "pizza pizza",
+  //   foodOrdered: "Egg-Ham-Cheese",
+  //   comments: "taste like socks",
+  //   revisit: "no",
+  //   address: "road road Avenue 3",
+  //   creatorID: "u1",
+  //   gcoordinates: {
+  //     lat: 1.2907,
+  //     lng: 103.852,
+  //   },
+  // },
 ];
 
 //GET ROUTES
@@ -31,6 +33,10 @@ router.get("/:locationID", (req, res) => {
   const location = seed_data.find((loc) => {
     return loc.id === locationID;
   });
+
+  if (!location) {
+    throw new HttpError('No locations found', 404)
+  }
   res.json({ location: location });
 });
 
@@ -40,6 +46,12 @@ router.get("/user/:userID", (req, res) => {
   const locations = seed_data.filter((loc) => {
     return loc.creatorID === userID;
   });
+
+  if (!location) {
+    return next(
+      new HttpError('Location does not exist from this user.', 404)
+    )
+  }
   res.json({ locations: locations });
 });
 
@@ -76,18 +88,21 @@ router.post(
       res.status(500).send('location not found')
     }
 
-    const createdLocation = {
-      name,
-      foodOrdered,
-      comments,
-      revisit,
-      address,
-      creatorID,
-      location: gcoordinates,
-    };
-
-    seed_data.push(createdLocation);
-
+    const createdLocation = new Location(
+      {
+        name, 
+        foodOrdered, 
+        address, 
+        coordinates: gcoordinates, 
+        img: 'https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light', 
+        creatorID
+    });
+    try {
+      await createdLocation.save();
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('error occured when creating location')
+    } 
     res.status(201).json({ location: createdLocation });
   }
 );
