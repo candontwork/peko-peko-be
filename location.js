@@ -17,11 +17,11 @@ async function addressToCoord(address) {
     const err = new HttpError(
       'Location not found for this address.', 422
     );
-    throw error
+    throw err
   }
 
-  const coordinates = data.results[0].geometry.location;
-  return coordinates
+  const gcoordinates = data.results[0].geometry.location;
+  return gcoordinates
 }
 
 module.exports = addressToCoord;

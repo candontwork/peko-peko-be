@@ -5,24 +5,24 @@ const HttpError = require("../models/error-handler");
 
 const router = express.Router();
 const addressToCoord = require("../location");
-const Location = require("../models/location");
+const Location = require('../models/location');
 
 let seed_data = [
-  // {
-  //   id: "place2",
-  //   imgUrl:
-  //     "https://qul.imgix.net/4d8a0964-da2a-4ec9-b0a0-95a577d2a1d6/552197_sld.jpg?auto=format&w=1800",
-  //   name: "pizza pizza",
-  //   foodOrdered: "Egg-Ham-Cheese",
-  //   comments: "taste like socks",
-  //   revisit: "no",
-  //   address: "road road Avenue 3",
-  //   creatorID: "u1",
-  //   gcoordinates: {
-  //     lat: 1.2907,
-  //     lng: 103.852,
-  //   },
-  // },
+  {
+    id: "place2",
+    imgUrl:
+      "https://qul.imgix.net/4d8a0964-da2a-4ec9-b0a0-95a577d2a1d6/552197_sld.jpg?auto=format&w=1800",
+    name: "pizza pizza",
+    foodOrdered: "Egg-Ham-Cheese",
+    comments: "taste like socks",
+    revisit: "no",
+    address: "road road Avenue 3",
+    creatorID: "u1",
+    gcoordinates: {
+      lat: 1.2907,
+      lng: 103.852,
+    },
+  },
 ];
 
 //GET ROUTES
@@ -58,17 +58,17 @@ router.get("/user/:userID", (req, res) => {
 //new location entry
 router.post(
   "/",
-  [check("name").not().isEmpty()],
-  [check("foodOrdered").not().isEmpty()],
-  [check("revisit").not().isEmpty()],
-  [check("address").not().isEmpty()],
+  // [check("name").not().isEmpty()],
+  // [check("foodOrdered").not().isEmpty()],
+  // [check("revisit").not().isEmpty()],
+  // [check("address").not().isEmpty()],
   async (req, res, next) => {
-    const validationErr = validationResult(req);
-    if (!validationErr.isEmpty()) {
-      return next(
-        new HttpError("Invalid inputs passed, please check your data.", 422)
-      );
-    }
+    // const validationErr = validationResult(req);
+    // if (!validationErr.isEmpty()) {
+    //   return next(
+    //     new HttpError("Error in data entered, please check", 422)
+    //   );
+    // }
 
     const { name, foodOrdered, comments, revisit, address, creatorID } =
       req.body;
@@ -78,27 +78,49 @@ router.post(
     try {
       gcoordinates = await addressToCoord(address);
     } catch (err) {
-      console.error(err);
       return next(err);
     }
 
     const createdLocation = new Location({
-      name,
-      foodOrdered,
-      address,
-      coordinates: gcoordinates,
+      name: name, 
+      foodOrdered: foodOrdered, 
+      address: address, 
+      revisit: revisit,
+      coordinates: gcoordinates, //could be this location label?
       img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-      creatorID,
+      creatorID,      
     });
+
     try {
       await createdLocation.save();
     } catch (err) {
-      console.error(err);
-      res.status(500).send("error occured when creating location");
+      const error = new HttpError(
+        'Error occured when creating location, please try again', 500
+      );
+      return next(error); 
     }
-    res.status(201).json({ location: createdLocation });
-  }
-);
+    res.status(201).json({location:createdLocation});
+  })
+
+    // const createdLocation = new Location({
+    //   name,
+    //   foodOrdered,
+    //   address,
+    //   coordinates: gcoordinates,
+    //   img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
+    //   creatorID,
+    // });
+
+  //   try {
+  //     await createdLocation.save();
+  //   } catch (err) {
+  //     const error = new HttpError(
+  //       'error occured when creating location', 500
+  //     );
+  //   return next(error);
+  //     }
+  //     res.status(201).json({ location: createdLocation });
+  // })
 
 //PUT Routes
 //update past locations

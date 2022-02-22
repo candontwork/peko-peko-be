@@ -23,8 +23,16 @@ app.use("/api/user", userController);
 
 app.use((req, res) => {
   const err = new HttpError('Page does not exist', 404);
-  throw error; 
+  throw err; 
 })
+
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.json({ message: error.message || 'An unknown error occurred!' });
+});
 
 //mango
 mongoose.connect(MONGO_URL).then(async () => {
