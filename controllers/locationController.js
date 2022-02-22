@@ -7,26 +7,7 @@ const router = express.Router();
 const addressToCoord = require("../location");
 const Location = require("../models/location");
 
-let seed_data = [
-  {
-    id: "place2",
-    imgUrl:
-      "https://qul.imgix.net/4d8a0964-da2a-4ec9-b0a0-95a577d2a1d6/552197_sld.jpg?auto=format&w=1800",
-    name: "pizza pizza",
-    foodOrdered: "Egg-Ham-Cheese",
-    comments: "taste like socks",
-    revisit: "no",
-    address: "road road Avenue 3",
-    creatorID: "u1",
-    gcoordinates: {
-      lat: 1.2907,
-      lng: 103.852,
-    },
-  },
-];
-
 //GET ROUTES
-
 //route to get location
 router.get("/:locationID", async (req, res, next) => {
   const locationID = req.params.locationID;
@@ -151,13 +132,25 @@ router.put(
 );
 
 //DELETE
-router.delete("/:locationID", (req, res) => {
+router.delete("/:locationID", async (req, res, next) => {
   const locationID = req.params.locationID;
-  if (seed_data.find((loc) => loc.id === locationID)) {
-    console.log("error msg");
+
+  let location; 
+  try {
+    location = await findById(locationID)
+  } catch (err) {
+    const error = new HttpError ('An error occured, unable to delete.', 500); 
+    return next(error)
   }
-  seed_data = seed_data.filter((loc) => loc.id !== locationID);
-  res.status(200).json({ message: "location deleted!" });
+
+  try {
+    await location.remove();
+  } catch (err) {
+    const error = new HttpError ('An error occured, unable to delete.', 500); 
+    return next(error)
+  }
+
+  res.status(200).json({ location: location.toObject({getters: true}) });
 });
 
 module.exports = router;
