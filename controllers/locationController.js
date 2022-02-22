@@ -1,11 +1,11 @@
 const express = require("express");
 const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
-const HttpError = require('../models/error-handler')
+const HttpError = require("../models/error-handler");
 
 const router = express.Router();
-const addressToCoord = require('../location')
-const Location = require('../models/location')
+const addressToCoord = require("../location");
+const Location = require("../models/location");
 
 let seed_data = [
   // {
@@ -35,7 +35,7 @@ router.get("/:locationID", (req, res) => {
   });
 
   if (!location) {
-    throw new HttpError('No locations found', 404)
+    throw new HttpError("No locations found", 404);
   }
   res.json({ location: location });
 });
@@ -48,9 +48,7 @@ router.get("/user/:userID", (req, res) => {
   });
 
   if (!location) {
-    return next(
-      new HttpError('Location does not exist from this user.', 404)
-    )
+    return next(new HttpError("Location does not exist from this user.", 404));
   }
   res.json({ locations: locations });
 });
@@ -64,45 +62,40 @@ router.post(
   [check("foodOrdered").not().isEmpty()],
   [check("revisit").not().isEmpty()],
   [check("address").not().isEmpty()],
-  async (req, res) => {
+  async (req, res, next) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-     next (new HttpError('Error in data entered, please check', 422))
+      return next(
+        new HttpError("Invalid inputs passed, please check your data.", 422)
+      );
     }
 
-    const {
-      name,
-      foodOrdered,
-      comments,
-      revisit,
-      address,
-      creatorID,
-    } = req.body;
+    const { name, foodOrdered, comments, revisit, address, creatorID } =
+      req.body;
 
     let gcoordinates;
 
     try {
-      gcoordinates = await addressToCoord(address)
+      gcoordinates = await addressToCoord(address);
     } catch (err) {
-      console.error(err)
-      return next (err)
+      console.error(err);
+      return next(err);
     }
 
-    const createdLocation = new Location(
-      {
-        name, 
-        foodOrdered, 
-        address, 
-        coordinates: gcoordinates, 
-        img: 'https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light', 
-        creatorID
+    const createdLocation = new Location({
+      name,
+      foodOrdered,
+      address,
+      coordinates: gcoordinates,
+      img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
+      creatorID,
     });
     try {
       await createdLocation.save();
     } catch (err) {
       console.error(err);
-      res.status(500).send('error occured when creating location')
-    } 
+      res.status(500).send("error occured when creating location");
+    }
     res.status(201).json({ location: createdLocation });
   }
 );
@@ -118,7 +111,7 @@ router.put(
   (req, res) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-      throw new HttpError('Error in data entered, please check', 422);
+      throw new HttpError("Error in data entered, please check", 422);
     }
 
     const { name, foodOrdered, comments, revisit, address, gcoordinates } =
@@ -145,8 +138,8 @@ router.put(
 //DELETE
 router.delete("/:locationID", (req, res) => {
   const locationID = req.params.locationID;
-  if (seed_data.find(loc => loc.id=== locationID)) {
-    console.log('error msg')
+  if (seed_data.find((loc) => loc.id === locationID)) {
+    console.log("error msg");
   }
   seed_data = seed_data.filter((loc) => loc.id !== locationID);
   res.status(200).json({ message: "location deleted!" });
