@@ -67,7 +67,7 @@ router.post(
   async (req, res) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-      return next (new HttpError('Error in data entered, please check', 422))
+     next (new HttpError('Error in data entered, please check', 422))
     }
 
     const {
@@ -120,7 +120,7 @@ router.put(
     if (!validationErr.isEmpty()) {
       throw new HttpError('Error in data entered, please check', 422);
     }
-    
+
     const { name, foodOrdered, comments, revisit, address, gcoordinates } =
       req.body;
     const locationID = req.params.locationID;
