@@ -7,7 +7,7 @@ const router = express.Router();
 const addressToCoord = require("../location");
 const Location = require("../models/location");
 
-//GET ROUTES
+//GET ROUTES   -----------------------------------------------------------
 //route to get location
 router.get("/:locationID", async (req, res, next) => {
   const locationID = req.params.locationID;
@@ -48,7 +48,7 @@ router.get("/user/:userID", async (req, res, next) => {
   });
 });
 
-//POST ROUTES
+//POST ROUTES   -----------------------------------------------------------
 
 //new location entry
 router.post("/", async (req, res, next) => {
@@ -83,7 +83,7 @@ router.post("/", async (req, res, next) => {
   res.status(201).json({ location: createdLocation });
 });
 
-//PUT Routes
+//POST ROUTES   -----------------------------------------------------------
 //update past locations
 router.put(
   "/:locationID",
@@ -131,7 +131,8 @@ router.put(
   }
 );
 
-//DELETE
+//DELETE ROUTES   -----------------------------------------------------------
+
 router.delete("/:locationID", async (req, res, next) => {
   const locationID = req.params.locationID;
 
