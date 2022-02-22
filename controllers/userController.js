@@ -36,7 +36,7 @@ router.post(
       return next(new HttpError("Invalid inputs passed, please check"), 500);
     }
 
-    const { email, username, password, locations } = req.body;
+    const { email, username, password } = req.body;
 
     let userExists;
     try {
@@ -56,7 +56,7 @@ router.post(
       password: password,
       username: username,
       img: "https://avataaars.io/?avatarStyle=Transparent&topType=WinterHat4&accessoriesType=Blank&hatColor=Red&facialHairType=MoustacheMagnum&facialHairColor=Platinum&clotheType=ShirtVNeck&clotheColor=Blue01&eyeType=Side&eyebrowType=UpDownNatural&mouthType=Concerned&skinColor=Brown",
-      locations: locations,
+      locations: []
     });
 
     try {

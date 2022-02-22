@@ -1,11 +1,13 @@
 const express = require("express");
 const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
-const HttpError = require("../models/error-handler");
+const mongoose = require('mongoose');
 
 const router = express.Router();
+const HttpError = require("../models/error-handler");
 const addressToCoord = require("../location");
 const Location = require("../models/location");
+const User = require('../models/user')
 
 //GET ROUTES   -----------------------------------------------------------
 //route to get location
@@ -71,8 +73,31 @@ router.post("/", async (req, res, next) => {
     creatorID,
   });
 
+  let user;
   try {
-    await createdLocation.save();
+    user = await User.findById(creatorID); 
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to create place. Please try again",
+      500
+    );
+    return next(error);
+  }
+
+  if(!user) {
+    const error = new HttpError('User not found.', 404)
+    return next(error)
+  }
+
+  console.log(user);
+
+  try {
+    const session = await mongoose.startSession(); 
+    session.startTransaction(); 
+    await createdLocation.save({session: session});
+    user.locations.push(createdLocation);
+    await user.save({session:session})
+    await session.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       "Error occured when creating location, please try again",
@@ -136,22 +161,22 @@ router.put(
 router.delete("/:locationID", async (req, res, next) => {
   const locationID = req.params.locationID;
 
-  let location; 
+  let location;
   try {
-    location = await Location.findById(locationID)
+    location = await Location.findById(locationID);
   } catch (err) {
-    const error = new HttpError ('An error occured, unable to delete.', 500); 
-    return next(error)
+    const error = new HttpError("An error occured, unable to delete.", 500);
+    return next(error);
   }
 
   try {
     await location.remove();
   } catch (err) {
-    const error = new HttpError ('An error occured, unable to delete.', 500); 
-    return next(error)
+    const error = new HttpError("An error occured, unable to delete.", 500);
+    return next(error);
   }
 
-  res.status(200).json({ message: 'Location deleted!' });
+  res.status(200).json({ message: "Location deleted!" });
 });
 
 module.exports = router;
