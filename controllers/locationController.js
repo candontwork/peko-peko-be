@@ -163,17 +163,27 @@ router.delete("/:locationID", async (req, res, next) => {
 
   let location;
   try {
-    location = await Location.findById(locationID);
+    location = await Location.findById(locationID).populate('creatorID');
   } catch (err) {
     const error = new HttpError("An error occured, unable to delete.", 500);
     return next(error);
   }
+  if (!location) {
+    const error = new HttpError('Location not found.', 404);
+    return next(error)
+  }
+  console.log(location); 
 
   try {
-    await location.remove();
+    const session = await mongoose.startSession(); 
+    session.startTransaction(); 
+    await location.remove({session: session});
+    location.creatorID.locations.pull(location); 
+    await location.creatorID.save({session:session})
+    await session.commitTransaction();
   } catch (err) {
-    const error = new HttpError("An error occured, unable to delete.", 500);
-    return next(error);
+    const error = new HttpError('Error occured while deleting location.', 500)
+    return next(error) 
   }
 
   res.status(200).json({ message: "Location deleted!" });
