@@ -1,6 +1,7 @@
 const express = require("express");
 const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
+const HttpError = require("../models/error-handler");
 
 const router = express.Router();
 
@@ -42,7 +43,7 @@ router.post(
 
     const userExists = seed_data.find((u) => u.email === email);
     if (userExists) {
-      console.log("user exists");
+      throw new HttpError('Email already exists.', 422);
     }
 
     const newUser = {
@@ -63,7 +64,7 @@ router.post("/login", (req, res) => {
 
   const userFound = seed_data.find((u) => u.email === email);
   if (!userFound || userFound.password !== password) {
-    console.log("password and user dont match");
+    throw new HttpError('Username or Password is wrong', 401);
   }
 
   res.json({ message: "Logged In" });

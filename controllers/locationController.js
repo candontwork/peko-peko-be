@@ -67,9 +67,9 @@ router.post(
   async (req, res) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-      console.log(validationErr, "error: invalid input");
-      res.status(422);
+      return next (new HttpError('Error in data entered, please check', 422))
     }
+
     const {
       name,
       foodOrdered,
@@ -85,7 +85,7 @@ router.post(
       gcoordinates = await addressToCoord(address)
     } catch (err) {
       console.error(err)
-      res.status(500).send('location not found')
+      return next (err)
     }
 
     const createdLocation = new Location(
@@ -118,9 +118,9 @@ router.put(
   (req, res) => {
     const validationErr = validationResult(req);
     if (!validationErr.isEmpty()) {
-      console.log(validationErr, "error: invalid input");
-      res.status(422);
+      throw new HttpError('Error in data entered, please check', 422);
     }
+    
     const { name, foodOrdered, comments, revisit, address, gcoordinates } =
       req.body;
     const locationID = req.params.locationID;
