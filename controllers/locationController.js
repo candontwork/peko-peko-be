@@ -137,7 +137,7 @@ router.delete("/:locationID", async (req, res, next) => {
 
   let location; 
   try {
-    location = await findById(locationID)
+    location = await Location.findById(locationID)
   } catch (err) {
     const error = new HttpError ('An error occured, unable to delete.', 500); 
     return next(error)
@@ -150,7 +150,7 @@ router.delete("/:locationID", async (req, res, next) => {
     return next(error)
   }
 
-  res.status(200).json({ location: location.toObject({getters: true}) });
+  res.status(200).json({ message: 'Location deleted!' });
 });
 
 module.exports = router;
