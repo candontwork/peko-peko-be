@@ -3,6 +3,7 @@ const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
 const mongoose = require('mongoose');
 
+const checkAuth = require("./middleware/check-auth");
 const router = express.Router();
 const HttpError = require("../models/error-handler");
 const addressToCoord = require("../location");
@@ -50,6 +51,8 @@ router.get("/user/:userID", async (req, res, next) => {
     locations: locations.locations.map((loc) => loc.toObject({ getters: true })),
   });
 });
+
+app.use(checkAuth);
 
 //POST ROUTES   -----------------------------------------------------------
 

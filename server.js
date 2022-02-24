@@ -11,28 +11,25 @@ const MONGO_USER = process.env.MONGO_USER;
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
 const MONGO_BASE_URL = process.env.MONGO_BASE_URL;
 const MONGO_URL = `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_BASE_URL}/${DATABASE}?retryWrites=true&w=majority`;
-const checkAuth = require('./middleware/check-auth')
-
 
 //middleware
 app.use(express.json());
 app.use(cors());
-app.use(checkAuth); 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-    );
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
-    
-    next();
-  });
-  
-  //Controllers
-  const locationController = require("./controllers/locationController");
-  const userController = require("./controllers/userController");
-  const HttpError = require("./models/error-handler");
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+
+  next();
+});
+
+//Controllers
+const locationController = require("./controllers/locationController");
+const userController = require("./controllers/userController");
+const HttpError = require("./models/error-handler");
 
 app.use("/api/locations", locationController);
 app.use("/api/user", userController);

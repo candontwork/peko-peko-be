@@ -5,6 +5,7 @@ const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/error-handler");
 const User = require("../models/user");
+const checkAuth = require("./middleware/check-auth");
 
 const router = express.Router();
 
@@ -23,6 +24,9 @@ router.get("/all", async (req, res, next) => {
   }
   res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 });
+
+
+app.use(checkAuth);
 
 //POST ROUTES   -----------------------------------------------------------
 //create new user & sign in
