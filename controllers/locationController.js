@@ -101,6 +101,7 @@ router.post("/new", async (req, res, next) => {
     await user.save({session:session})
     await session.commitTransaction();
   } catch (err) {
+    console.log(err)
     const error = new HttpError(
       "Error occured when creating location, please try again",
       500
@@ -137,7 +138,6 @@ router.put(
       );
       return next(error);
     }
-
     location.name = name;
     location.foodOrdered = foodOrdered;
     location.comments = comments;
