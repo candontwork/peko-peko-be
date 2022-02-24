@@ -71,7 +71,7 @@ router.post("/new", async (req, res, next) => {
     revisit: revisit,
     comments: comments,
     coordinates: gcoordinates,
-    img: "https://static.toiimg.com/thumb/53110049.cms?width=1200&height=900",
+    img: "https://qul.imgix.net/4d8a0964-da2a-4ec9-b0a0-95a577d2a1d6/552197_sld.jpg?auto=format&w=1800",
     creatorID,
   });
 
