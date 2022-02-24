@@ -71,7 +71,7 @@ router.post("/new", async (req, res, next) => {
     revisit: revisit,
     comments: comments,
     coordinates: gcoordinates,
-    img: "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
+    img: "https://static.toiimg.com/thumb/53110049.cms?width=1200&height=900",
     creatorID,
   });
 
