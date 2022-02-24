@@ -1,4 +1,6 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { check } = require("express-validator");
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/error-handler");
@@ -51,12 +53,23 @@ router.post(
       return next(error);
     }
 
+    let hashedPassword;
+    try {
+      hashedPassword = await bcrypt.hash(password, 12);
+    } catch (err) {
+      const error = new HttpError(
+        "Could not create user, please try again.",
+        500
+      );
+      return next(error);
+    }
+
     const newUser = new User({
       email: email,
-      password: password,
+      password: hashedPassword,
       username: username,
       img: "https://avataaars.io/?avatarStyle=Transparent&topType=WinterHat4&accessoriesType=Blank&hatColor=Red&facialHairType=MoustacheMagnum&facialHairColor=Platinum&clotheType=ShirtVNeck&clotheColor=Blue01&eyeType=Side&eyebrowType=UpDownNatural&mouthType=Concerned&skinColor=Brown",
-      locations: []
+      locations: [],
     });
 
     try {
@@ -68,7 +81,21 @@ router.post(
       );
       return next(error);
     }
-    res.status(201).json({ user: newUser.toObject({ getters: true }) });
+
+    let token;
+    try {
+      token = jwt.sign(
+        { userId: newUser.id, email: newUser.email },
+        "supersecret_DNS",
+        { expiresIn: "1h" }
+      );
+    } catch (err) {
+      const error = new HttpError(
+        'Sign up failed, try again later', 500);
+        return next(error)
+    }
+
+    res.status(201).json({ userId: newUser.id, email: newUser.email, token: token });
   }
 );
 
@@ -89,15 +116,42 @@ router.post("/login", async (req, res, next) => {
     return next(error);
   }
 
-  if (userFound.password !== password) {
-    const error = new HttpError("Email and password don't match", 401);
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, userFound.password);
+  } catch (err) {
+    const error = new HttpError(
+      "Could not login, please check your login details.",
+      500
+    );
     return next(error);
   }
 
+  if (!isValidPassword) {
+    const error = new HttpError("Login denied, invalid login details.", 401);
+    return next(error);
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: userFound.id, email: userFound.email },
+      "supersecret_DNS",
+      { expiresIn: "1h" }
+    );
+  } catch (err) {
+    const error = new HttpError(
+      'Logging in failed, try again later', 500);
+      return next(error)
+  }
+
   res.json({
-    message: 'Logged in!',
-    user: userFound.toObject({ getters: true })
+    userId: userFound.id, 
+    email: userFound.email,
+    token: token
+    // message: "Logged in!",
+    // user: userFound.toObject({ getters: true }),
   });
-})
+});
 
 module.exports = router;
