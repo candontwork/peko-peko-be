@@ -1,5 +1,5 @@
-const HttpError = require("../models/error-handler");
 const jwt = require("jsonwebtoken");
+const HttpError = require("../models/error-handler");
 
 module.exports = (req, res, next) => {
   try {
