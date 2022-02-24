@@ -54,7 +54,7 @@ router.get("/user/:userID", async (req, res, next) => {
 //POST ROUTES   -----------------------------------------------------------
 
 //new location entry
-router.post("/", async (req, res, next) => {
+router.post("/new", async (req, res, next) => {
   const { name, foodOrdered, comments, revisit, address, creatorID } = req.body;
 
   let gcoordinates;
