@@ -5,6 +5,7 @@ const HttpError = require("../models/error-handler");
 const User = require("../models/user");
 
 const router = express.Router();
+const fileUpload = require('../middleware/file-upload')
 
 //GET ROUTES   -----------------------------------------------------------
 //get all user
@@ -26,6 +27,7 @@ router.get("/all", async (req, res, next) => {
 //create new user & sign in
 router.post(
   "/signup",
+  fileUpload.single('image'),
   // [check("username").not().isEmpty()],
   // [check("email").not().isEmpty()],
   // [check("email").normalizeEmail().isEmail()],
