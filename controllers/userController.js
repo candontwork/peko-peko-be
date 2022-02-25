@@ -27,7 +27,7 @@ router.get("/all", async (req, res, next) => {
 //create new user & sign in
 router.post(
   "/signup",
-  fileUpload.single('image'),
+  // fileUpload.single('image'),
   // [check("username").not().isEmpty()],
   // [check("email").not().isEmpty()],
   // [check("email").normalizeEmail().isEmail()],
