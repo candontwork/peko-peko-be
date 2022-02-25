@@ -57,7 +57,7 @@ router.post(
       email: email,
       password: password,
       username: username,
-      image: req.file.path,
+      image: 'https://avataaars.io/?avatarStyle=Circle&topType=LongHairFrida&accessoriesType=Round&hairColor=Brown&facialHairType=Blank&clotheType=Overall&clotheColor=PastelOrange&eyeType=Close&eyebrowType=SadConcerned&mouthType=ScreamOpen&skinColor=DarkBrown',
       locations: []
     });
 
